@@ -1,5 +1,6 @@
 ﻿using eShopSolution.Data.Configurations;
 using eShopSolution.Data.Entities;
+using eShopSolution.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -60,6 +61,16 @@ namespace eShopSolution.Data.EF
             modelBuilder.ApplyConfiguration(new CategoryTranslationConfiguration());
 
             modelBuilder.ApplyConfiguration(new ProductTranslationConfiguration());
+
+
+            //10. Data Seeding 
+
+            //modelBuilder.Entity<AppConfig>().HasData(
+            //    new AppConfig() { Key="HomeTitle", Value="This is the home page of eShopSolution"},
+            //    new AppConfig() { Key = "HomeKeyword", Value = "This is keyword of eShopSolution" },
+            //    new AppConfig() { Key = "HomeDescription", Value = "This is description of eShopSolution" }
+            //    );
+            modelBuilder.Seed();
         }
     }
 }
