@@ -20,8 +20,9 @@ namespace eShopSolution.Data.Entities
         public string Provider { get; set; }
         //End 7
 
-
+        //11
         public Guid UserId { get; set; }
-        //public AppUser AppUser { get; set; }
+        
+        public AppUser AppUser { get; set; }
     }
 }
