@@ -19,10 +19,11 @@ namespace eShopSolution.Data.Entities
         public OrderStatus Status { get; set; }
         //end 7
 
-        //8.
         public List<OrderDetail> OrderDetails { get; set; }
+        //end 8
 
-        //public AppUser AppUser { get; set; }
+        public AppUser AppUser { get; set; }
+        //end 11
 
     }
 }
