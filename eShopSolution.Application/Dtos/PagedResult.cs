@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.Application.Dtos
 {
-    public class PagedViewModel<T>
+    public class PagedResult<T>
     {
         public List<T> Items { get; set; }
         public int TotalRecord { get; set; }

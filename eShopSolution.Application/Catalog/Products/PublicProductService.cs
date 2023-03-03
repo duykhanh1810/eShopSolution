@@ -10,7 +10,7 @@ namespace eShopSolution.Application.Catalog.Products
 {
     public class PublicProductService : IPublicProductService
     {
-        public PagedViewModel<ProductViewModel> GetAllByCategoryId(int categoryId, int pageIndex, int pageSize)
+        public PagedResult<ProductViewModel> GetAllByCategoryId(int categoryId, int pageIndex, int pageSize)
         {
             throw new NotImplementedException();
         }
