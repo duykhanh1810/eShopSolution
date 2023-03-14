@@ -31,6 +31,8 @@ namespace eShopSolution.Data.EF
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<ProductInCategory> ProductInCategories { get; set; }
+
+        public DbSet<ProductImage> ProductImages { get; set; }
         //end 7
 
         // Phương thức này thi hành khi EnsureCreatedAsync chạy, tại đây gọi các Fluent API mong muốn 
@@ -76,6 +78,8 @@ namespace eShopSolution.Data.EF
             modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens").HasKey(x=>x.UserId);
             //end 11
 
+            modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
+            //end 15
 
             //10. Data Seeding 
 

@@ -1,6 +1,6 @@
-﻿using eShopSolution.Application.Catalog.Products.Dtos;
-using eShopSolution.Application.Catalog.Products.Dtos.Manage;
-using eShopSolution.Application.Dtos;
+﻿using eShopSolution.ViewModels.Catalog.Products;
+using eShopSolution.ViewModels.Common;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +24,15 @@ namespace eShopSolution.Application.Catalog.Products
 
         Task<int> Delete(int productId);
 
-        Task<List<ProductViewModel>> GetAll(); //Lấy ra danh sách các thuộc tính mà ta muốn hiển thị
+        //Task<List<ProductViewModel>> GetAll(); //Lấy ra danh sách các thuộc tính mà ta muốn hiển thị  
+        // thực tế ít dùng
 
-        Task<PagedResult<ProductViewModel>> GetAllPaging(GetProductPagingRequest request); //phân trang
+        Task<PagedResult<ProductViewModel>> GetAllPaging(GetManageProductPagingRequest request); //phân trang
+
+        //16 Image
+        Task<int> AddImages(int productId, List<IFormFile> files);
+        Task<int> RemoveImages(int productId);
+        Task<int> UpdateImage(int imageId, string caption, bool isDefault);
+        Task<List<ProductImageViewModel>> GetListImage(int productId);
     }
 }
