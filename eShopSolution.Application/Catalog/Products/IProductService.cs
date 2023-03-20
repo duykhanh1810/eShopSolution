@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.Application.Catalog.Products
 {
-    public interface IManageProductService
+    public interface IProductService
     {
         Task<int> Create(ProductCreateRequest request); //dùng thread để có thể xử lý nhiều request cùng 1 lúc
 
@@ -43,5 +43,11 @@ namespace eShopSolution.Application.Catalog.Products
         Task<ProductImageViewModel> GetImageById(int imageId);
 
         Task<List<ProductImageViewModel>> GetListImages(int productId);
+
+        // 27. gộp IPublicProductService vào thành IProductService
+
+        Task<PagedResult<ProductViewModel>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request);
+
+        //Task<List<ProductViewModel>> GetAll(string languageId);
     }
 }

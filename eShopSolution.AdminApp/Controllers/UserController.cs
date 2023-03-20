@@ -2,6 +2,7 @@
 using eShopSolution.ViewModels.System.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
@@ -25,9 +26,18 @@ namespace eShopSolution.AdminApp.Controllers
             _configuration = configuration;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10) //gán mặc định cho pageIndex và pageSize nếu k có giá trị
         {
-            return View();
+            var session = HttpContext.Session.GetString("Token"); //lấy token khi login thành công
+            var request = new GetUserPagingRequest() //gán vào request là 1 GetUserPagingRequest
+            {
+                BearerToken = session,
+                Keyword = keyword,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
+            var data = await _userApiClient.GetUsersPagings(request); //truyền vào GetUserPagings
+            return View(data); //trả về
         }
 
         [HttpGet]
@@ -66,6 +76,8 @@ namespace eShopSolution.AdminApp.Controllers
                 //	(khớp với thời gian tồn tại của vé xác thực) hay dựa trên phiên(Session).
             };
 
+            HttpContext.Session.SetString("Token", token); //27. đưa token vào session
+
             //Gọi hàm SignInAsync của HttpContext
             await HttpContext.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,
@@ -99,6 +111,7 @@ namespace eShopSolution.AdminApp.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Remove("Token");
             return RedirectToAction("Login", "User");
         }
     }

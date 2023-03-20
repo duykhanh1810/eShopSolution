@@ -18,7 +18,7 @@
     "eShopSolution.BackendApi": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
-      "launchBrowser": false, //26 : chỉ cần chạy mà k cần show swagger ra nữa
+      "launchBrowser": false, //26 : false: chỉ cần chạy mà k cần show swagger ra nữa
       "launchUrl": "swagger", //18
       "applicationUrl": "https://localhost:5001",
       "environmentVariables": {
