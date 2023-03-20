@@ -9,6 +9,7 @@ namespace eShopSolution.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -46,6 +47,14 @@ namespace eShopSolution.BackendApi.Controllers
                 return BadRequest("Register unsuccessful");
             }
             return Ok();
+        }
+
+        //http://localhost:5001/api/users/paging?pageIndex=1&pageSize=10&keyword=
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request)
+        {
+            var user = await _userService.GetUsersPaging(request);
+            return Ok(user);
         }
     }
 }
