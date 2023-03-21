@@ -28,17 +28,14 @@ namespace eShopSolution.AdminApp.Controllers
 
         public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
         {
-            var sessions = HttpContext.Session.GetString("Token");
-
             var request = new GetUserPagingRequest()
             {
-                BearerToken = sessions,
                 Keyword = keyword,
                 PageIndex = pageIndex,
                 PageSize = pageSize
             };
             var data = await _userApiClient.GetUsersPagings(request);
-            return View(data);
+            return View(data.ResultObject);
         }
 
         [HttpGet]
@@ -54,9 +51,10 @@ namespace eShopSolution.AdminApp.Controllers
                 return View();
 
             var result = await _userApiClient.RegisterUser(request);
-            if (result)
+            if (result.IsSuccess)
                 return RedirectToAction("Index");
 
+            ModelState.AddModelError("", result.Message);
             return View(request);
         }
 
@@ -65,7 +63,43 @@ namespace eShopSolution.AdminApp.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Remove("Token");
-            return RedirectToAction("Login", "User");
+            return RedirectToAction("Index", "Login");
+        }
+
+        //29. Update user
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var result = await _userApiClient.GetById(id);
+            if (result.IsSuccess)
+            {
+                var user = result.ResultObject;
+                var update = new UserUpdateRequest()
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Dob = user.Dob,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber
+                };
+                return View(update);
+            }
+            return RedirectToAction("Error", "Home");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(UserUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+
+            var result = await _userApiClient.UpdateUser(request.Id, request);
+            if (result.IsSuccess)
+                return RedirectToAction("Index");
+
+            ModelState.AddModelError("", result.Message);
+            return View(request);
         }
     }
 }
