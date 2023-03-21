@@ -12,5 +12,8 @@ namespace eShopSolution.AdminApp.Services
         //nên đặt trùng tên với phương thức trong mà ta cần tích hợp trong prj BackendApi
 
         Task<PagedResult<UserVm>> GetUsersPagings(GetUserPagingRequest request);
+
+        //28
+        Task<bool> RegisterUser(RegisterRequest registerRequest);
     }
 }

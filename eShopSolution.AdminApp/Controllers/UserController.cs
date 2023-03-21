@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.AdminApp.Controllers
 {
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly IUserApiClient _userApiClient;
         private readonly IConfiguration _configuration;
@@ -26,85 +26,38 @@ namespace eShopSolution.AdminApp.Controllers
             _configuration = configuration;
         }
 
-        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10) //gán mặc định cho pageIndex và pageSize nếu k có giá trị
+        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 10)
         {
-            var session = HttpContext.Session.GetString("Token"); //lấy token khi login thành công
-            var request = new GetUserPagingRequest() //gán vào request là 1 GetUserPagingRequest
+            var sessions = HttpContext.Session.GetString("Token");
+
+            var request = new GetUserPagingRequest()
             {
-                BearerToken = session,
+                BearerToken = sessions,
                 Keyword = keyword,
                 PageIndex = pageIndex,
                 PageSize = pageSize
             };
-            var data = await _userApiClient.GetUsersPagings(request); //truyền vào GetUserPagings
-            return View(data); //trả về
+            var data = await _userApiClient.GetUsersPagings(request);
+            return View(data);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Login()
+        public IActionResult Create()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Create(RegisterRequest request)
         {
             if (!ModelState.IsValid)
-            {
-                return View(ModelState);
-            }
+                return View();
 
-            //Lấy token từ request của Authenticate trong IUserApiClient
-            var token = await _userApiClient.Authenticate(request);
+            var result = await _userApiClient.RegisterUser(request);
+            if (result)
+                return RedirectToAction("Index");
 
-            //26. Giải mã token
-
-            // Gọi phương thức ValidateToken để chuyển token sang sang biến userPricipal
-            var userPricipal = this.ValidateToken(token);
-
-            //Xây dựng Authentication Properties(là 1 tập Properties của cookies, tham khảo từ link ở đoạn code được cmt)
-            var authProperties = new AuthenticationProperties
-            {
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
-                //Thời gian mà Authentication hết hạn, khoảng thời gian này được gọi là vé xác thực(Authentication ticket)
-                //(có thể hiểu nếu lâu k đăng nhập fb thì nó sẽ tự đăng xuất)
-
-                IsPersistent = false,
-                // Liệu phiên xác thực có được duy trì qua nhiều yêu cầu hay không.
-                // Khi được sử dụng với cookie, kiểm soát xem thời gian tồn tại của cookie là tuyệt đối
-                //	(khớp với thời gian tồn tại của vé xác thực) hay dựa trên phiên(Session).
-            };
-
-            HttpContext.Session.SetString("Token", token); //27. đưa token vào session
-
-            //Gọi hàm SignInAsync của HttpContext
-            await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        userPricipal,
-                        authProperties);
-
-            //Login thành công thì sẽ chuyển về trang chủ
-            return RedirectToAction("Index", "Home");
-        }
-
-        //26. Hàm giải mã Token
-        private ClaimsPrincipal ValidateToken(string jwtToken)
-        {
-            IdentityModelEventSource.ShowPII = true;
-
-            SecurityToken validatedToken;
-            TokenValidationParameters validationParameters = new TokenValidationParameters();
-
-            validationParameters.ValidateLifetime = true;
-
-            validationParameters.ValidAudience = _configuration["Tokens:Issuer"];
-            validationParameters.ValidIssuer = _configuration["Tokens:Issuer"];
-            validationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Tokens:Key"]));
-
-            ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
-
-            return principal;
+            return View(request);
         }
 
         [HttpPost]
