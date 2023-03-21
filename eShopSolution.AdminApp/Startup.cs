@@ -33,7 +33,7 @@ namespace eShopSolution.AdminApp
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(option =>
             {
-                option.LoginPath = "/User/Login/";
+                option.LoginPath = "/Login/Index/";
                 option.AccessDeniedPath = "/User/Forbidden";
             }); //26
 

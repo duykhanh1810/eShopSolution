@@ -34,7 +34,7 @@ namespace eShopSolution.BackendApi.Controllers
             return Ok(resultToken); //trả về 1 token
         }
 
-        [HttpPost("register")]
+        [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
