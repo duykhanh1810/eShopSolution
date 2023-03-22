@@ -48,7 +48,7 @@ namespace eShopSolution.BackendApi.Controllers
             {
                 return BadRequest(result);
             }
-            return Ok();
+            return Ok(result);
         }
 
         //http://localhost:5001/api/users/paging?pageIndex=1&pageSize=10&keyword=
