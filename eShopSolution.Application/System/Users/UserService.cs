@@ -35,13 +35,13 @@ namespace eShopSolution.Application.System.Users
         public async Task<ApiResult<string>> Authencate(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName); //tìm username
-            if (user == null) return null;
+            if (user == null) return new ApiErrorResult<string>("Tài khoản không tồn tại");
 
             //check pass
             var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
             //username, password,rememberMe, khi mà login failed nhiều quá thì sẽ khóa tài khoản = true
 
-            if (!result.Succeeded) { return null; }
+            if (!result.Succeeded) { return new ApiErrorResult<string>("Mật khẩu bạn nhập không đúng"); }
 
             //đăng nhập thành công
             var roles = await _userManager.GetRolesAsync(user); //lấy danh sách role, trả về list string
