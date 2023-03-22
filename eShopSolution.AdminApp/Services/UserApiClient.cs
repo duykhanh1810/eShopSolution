@@ -94,14 +94,10 @@ namespace eShopSolution.AdminApp.Services
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync($"/api/users", httpContent);
-            //return response.IsSuccessStatusCode;
-
-            //29
             var result = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
-            {
                 return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
-            }
+
             return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
         }
 
@@ -158,6 +154,27 @@ namespace eShopSolution.AdminApp.Services
             //thực hiện lấy dữ liệu từ các định dạng có cấu trúc, khôi phục thông tin theo byte, XML, JSON,... thành các đối tượng
 
             return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body); //29
+        }
+
+        //31. Delete User
+        public async Task<ApiResult<bool>> Delete(Guid id)
+        {
+            var client = _httpClientFactory.CreateClient(); //tạo 1 đối tượng client
+
+            //Lấy token từ session thông qua HttpContextAccessor
+            var session = _httpContextAccessor.HttpContext.Session.GetString("Token");
+
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
+
+            var response = await client.DeleteAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(body);
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
         }
     }
 }
