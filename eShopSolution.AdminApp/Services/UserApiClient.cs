@@ -176,5 +176,31 @@ namespace eShopSolution.AdminApp.Services
 
             return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
         }
+
+        //34.Role Assign
+        public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
+        {
+            var client = _httpClientFactory.CreateClient();
+
+            //Lấy token từ session thông qua HttpContextAccessor
+            var session = _httpContextAccessor.HttpContext.Session.GetString("Token");
+
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
+
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PutAsync($"/api/users/{id}/roles", httpContent);
+            //return response.IsSuccessStatusCode;
+
+            //29
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+            }
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+        }
     }
 }
