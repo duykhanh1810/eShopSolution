@@ -43,12 +43,14 @@ namespace eShopSolution.AdminApp
 
             services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(1);//You can set Time
+                options.IdleTimeout = TimeSpan.FromMinutes(30);//You can set Time
             }); //27
 
             services.AddTransient<IUserApiClient, UserApiClient>();
 
             services.AddTransient<IRoleApiClient, RoleApiClient>(); //34
+
+            services.AddTransient<ILanguageApiClient, LanguageApiClient>(); //35
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); //29
 
