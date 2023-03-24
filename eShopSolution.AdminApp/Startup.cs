@@ -52,6 +52,8 @@ namespace eShopSolution.AdminApp
 
             services.AddTransient<ILanguageApiClient, LanguageApiClient>(); //35
 
+            services.AddTransient<IProductApiClient, ProductApiClient>(); //36
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); //29
 
             IMvcBuilder builder = services.AddRazorPages();

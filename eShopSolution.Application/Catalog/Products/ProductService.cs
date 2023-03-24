@@ -6,15 +6,12 @@ using eShopSolution.ViewModels.Catalog.ProductImage;
 using eShopSolution.ViewModels.Catalog.Products;
 using eShopSolution.ViewModels.Common;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Server.IISIntegration;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace eShopSolution.Application.Catalog.Products
@@ -151,13 +148,14 @@ namespace eShopSolution.Application.Catalog.Products
         //    throw new NotImplementedException();
         //}
 
-        public async Task<PagedResult<ProductViewModel>> GetAllPaging(GetManageProductPagingRequest request)
+        public async Task<PagedResult<ProductVm>> GetAllPaging(GetManageProductPagingRequest request)
         {
             //1. Select Join
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId
                         join pic in _context.ProductInCategories on p.Id equals pic.ProductId
                         join c in _context.Categories on pic.ProductId equals c.Id
+                        where pt.LanguageId == request.LanguageId //36
                         select new { p, pt, pic };
 
             //2. filter
@@ -166,16 +164,19 @@ namespace eShopSolution.Application.Catalog.Products
                 query = query.Where(x => x.pt.Name.Contains(request.Keyword));
 
             //nếu có bất cứ tìm kiếm nào liên quan đến sản phẩm trong list category
-            if (request.CategoryIds.Count > 0)
+            if (request.CategoryIds != null && request.CategoryIds.Count > 0)
             {
-                query = query.Where(x => request.CategoryIds.Contains(x.pic.CategoryId));
+                query = query.Where(p => request.CategoryIds.Contains(p.pic.CategoryId));
             }
 
             //3.Paging
-            int totalRow = await query.CountAsync(); // biến lấy tổng số bản ghi hiện tại sau khi search
 
-            var data = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize)
-                .Select(x => new ProductViewModel()
+            // biến lấy tổng số bản ghi hiện tại sau khi search
+            int totalRow = await query.CountAsync();
+
+            var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .Select(x => new ProductVm()
                 {
                     Id = x.p.Id,
                     Name = x.pt.Name,
@@ -196,7 +197,7 @@ namespace eShopSolution.Application.Catalog.Products
             // trang 2 sẽ là(2 - 1)*10 = 10, bỏ qua 10 bản ghi đầu tiên thì sẽ đến trang số 2
 
             //4. Select and Projection
-            var pagedResult = new PagedResult<ProductViewModel>()
+            var pagedResult = new PagedResult<ProductVm>()
             {
                 TotalRecords = totalRow,
                 PageIndex = request.PageIndex,
@@ -214,14 +215,14 @@ namespace eShopSolution.Application.Catalog.Products
             return fileName;
         }
 
-        public async Task<ProductViewModel> GetById(int productId, string languageId) //19
+        public async Task<ProductVm> GetById(int productId, string languageId) //19
         {
             var product = await _context.Products.FindAsync(productId);
 
             var productTranslation = await _context.ProductTranslations.
                 FirstOrDefaultAsync(x => x.ProductId == productId && x.LanguageId == languageId);
 
-            var productViewModel = new ProductViewModel()
+            var productViewModel = new ProductVm()
             {
                 Id = product.Id,
                 DateCreated = product.DateCreated,
@@ -354,7 +355,7 @@ namespace eShopSolution.Application.Catalog.Products
         //    return data;
         //}
 
-        public async Task<PagedResult<ProductViewModel>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request)
+        public async Task<PagedResult<ProductVm>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request)
         {
             //1. Select Join
             var query = from p in _context.Products
@@ -376,7 +377,7 @@ namespace eShopSolution.Application.Catalog.Products
             int totalRow = await query.CountAsync(); // biến lấy tổng số bản ghi hiện tại sau khi search
 
             var data = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize)
-                .Select(x => new ProductViewModel()
+                .Select(x => new ProductVm()
                 {
                     Id = x.p.Id,
                     Name = x.pt.Name,
@@ -397,7 +398,7 @@ namespace eShopSolution.Application.Catalog.Products
             // trang 2 sẽ là(2 - 1)*10 = 10, bỏ qua 10 bản ghi đầu tiên thì sẽ đến trang số 2
 
             //4. Select and Projection
-            var pagedResult = new PagedResult<ProductViewModel>()
+            var pagedResult = new PagedResult<ProductVm>()
             {
                 TotalRecords = totalRow,
                 PageIndex = request.PageIndex,

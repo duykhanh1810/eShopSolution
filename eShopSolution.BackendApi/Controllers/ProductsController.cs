@@ -31,12 +31,12 @@ namespace eShopSolution.BackendApi.Controllers
         //19. RESTful Api for product
 
         //http://localhost:port/products?pageIndex=1&pageSize=10&CategoryId=
-        [HttpGet("{languageId}")]
-        public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request)
-        {
-            var products = await _productService.GetAllByCategoryId(languageId, request);
-            return Ok(products);
-        }
+        //[HttpGet("{languageId}")]
+        //public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request)
+        //{
+        //    var products = await _productService.GetAllByCategoryId(languageId, request);
+        //    return Ok(products);
+        //}
 
         //http://localhost:port/product/public-paging/1
         [HttpGet("{productId}/{languageId}")]
@@ -155,6 +155,14 @@ namespace eShopSolution.BackendApi.Controllers
                 return BadRequest();
 
             return Ok();
+        }
+
+        //36. Product list
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetManageProductPagingRequest request)
+        {
+            var products = await _productService.GetAllPaging(request);
+            return Ok(products);
         }
     }
 }

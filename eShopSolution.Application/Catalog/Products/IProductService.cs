@@ -22,7 +22,7 @@ namespace eShopSolution.Application.Catalog.Products
 
         Task<bool> UpdateStock(int productId, int addedQuantity);
 
-        Task<ProductViewModel> GetById(int productId, string languageId);
+        Task<ProductVm> GetById(int productId, string languageId);
 
         Task AddViewCount(int productId);
 
@@ -31,7 +31,7 @@ namespace eShopSolution.Application.Catalog.Products
         //Task<List<ProductViewModel>> GetAll(); //Lấy ra danh sách các thuộc tính mà ta muốn hiển thị
         // thực tế ít dùng
 
-        Task<PagedResult<ProductViewModel>> GetAllPaging(GetManageProductPagingRequest request); //phân trang
+        Task<PagedResult<ProductVm>> GetAllPaging(GetManageProductPagingRequest request); //phân trang
 
         //16 Image
         Task<int> AddImages(int productId, ProductImageCreateRequest request);
@@ -46,7 +46,7 @@ namespace eShopSolution.Application.Catalog.Products
 
         // 27. gộp IPublicProductService vào thành IProductService
 
-        Task<PagedResult<ProductViewModel>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request);
+        Task<PagedResult<ProductVm>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request);
 
         //Task<List<ProductViewModel>> GetAll(string languageId);
     }
