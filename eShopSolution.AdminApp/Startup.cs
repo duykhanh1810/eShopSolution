@@ -54,6 +54,8 @@ namespace eShopSolution.AdminApp
 
             services.AddTransient<IProductApiClient, ProductApiClient>(); //36
 
+            services.AddTransient<ICategoryApiClient, CategoryApiClient>(); //39
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); //29
 
             IMvcBuilder builder = services.AddRazorPages();

@@ -153,11 +153,11 @@ namespace eShopSolution.Application.Catalog.Products
             //1. Select Join
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId
-                        //join pic in _context.ProductInCategories on p.Id equals pic.ProductId
-                        //join c in _context.Categories on pic.ProductId equals c.Id
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId
+                        join c in _context.Categories on pic.ProductId equals c.Id
                         where pt.LanguageId == request.LanguageId //36
-                        //select new { p, pt, pic };
-                        select new { p, pt };
+                        select new { p, pt, pic };
+            //select new { p, pt };
 
             //2. filter
             //trong trường hợp Keyword có dữ liệu - khác rỗng thì mới tìm
@@ -165,10 +165,10 @@ namespace eShopSolution.Application.Catalog.Products
                 query = query.Where(x => x.pt.Name.Contains(request.Keyword));
 
             //nếu có bất cứ tìm kiếm nào liên quan đến sản phẩm trong list category
-            //if (request.CategoryIds != null && request.CategoryIds.Count > 0)
-            //{
-            //    query = query.Where(p => request.CategoryIds.Contains(p.pic.CategoryId));
-            //}
+            if (request.CategoryId != null && request.CategoryId != 0)
+            {
+                query = query.Where(p => p.pic.CategoryId == request.CategoryId);
+            }
 
             //3.Paging
 
