@@ -1,3 +1,4 @@
+using eShopSolution.Application.Catalog.Categories;
 using eShopSolution.Application.Catalog.Products;
 using eShopSolution.Application.Common;
 using eShopSolution.Application.System.Language;
@@ -49,6 +50,7 @@ namespace eShopSolution.BackendApi
 
             //services.AddTransient<IPublicProductService, PublicProductService>();
             services.AddTransient<IProductService, ProductService>();
+            services.AddTransient<ICategoryService, CategoryService>(); //39
 
             //21.
             services.AddTransient<UserManager<AppUser>, UserManager<AppUser>>();
