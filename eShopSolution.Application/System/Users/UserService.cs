@@ -206,7 +206,6 @@ namespace eShopSolution.Application.System.Users
             //kiểm tra xem role đó có tồn tại hay không
             //Nếu không tồn tại thì bỏ đi
             var removeRole = request.Roles.Where(x => x.Selected == false).Select(x => x.Name).ToList();
-            await _userManager.RemoveFromRolesAsync(user, removeRole);
             foreach (var roleName in removeRole)
             {
                 if (await _userManager.IsInRoleAsync(user, roleName) == true)
@@ -214,6 +213,7 @@ namespace eShopSolution.Application.System.Users
                     await _userManager.RemoveFromRoleAsync(user, roleName);
                 }
             }
+            await _userManager.RemoveFromRolesAsync(user, removeRole);
 
             //Nếu tồn tại thì add vào nhưng với điều kiện là chưa tồn tại trong role đó
             var addedRole = request.Roles.Where(x => x.Selected).Select(x => x.Name).ToList();

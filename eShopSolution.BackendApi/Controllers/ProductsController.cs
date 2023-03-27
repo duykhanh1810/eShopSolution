@@ -1,9 +1,11 @@
 ﻿using eShopSolution.Application.Catalog.Products;
 using eShopSolution.ViewModels.Catalog.ProductImage;
 using eShopSolution.ViewModels.Catalog.Products;
+using eShopSolution.ViewModels.System.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace eShopSolution.BackendApi.Controllers
@@ -164,6 +166,21 @@ namespace eShopSolution.BackendApi.Controllers
         {
             var products = await _productService.GetAllPaging(request);
             return Ok(products);
+        }
+
+        //40. category assign
+        [HttpPut("{id}/categories")]
+        public async Task<IActionResult> CategoryAssign(int id, [FromBody] CategoryAssignRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _productService.CategoryAssign(id, request);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
     }
 }

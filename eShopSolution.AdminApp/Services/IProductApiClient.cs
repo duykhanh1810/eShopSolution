@@ -1,5 +1,6 @@
 ﻿using eShopSolution.ViewModels.Catalog.Products;
 using eShopSolution.ViewModels.Common;
+using System;
 using System.Threading.Tasks;
 
 namespace eShopSolution.AdminApp.Services
@@ -10,5 +11,10 @@ namespace eShopSolution.AdminApp.Services
 
         //37
         Task<bool> CreateProduct(ProductCreateRequest request);
+
+        //40.
+        Task<ApiResult<bool>> CategoryAssign(int id, CategoryAssignRequest request);
+
+        Task<ProductVm> GetById(int id, string languageId);
     }
 }
