@@ -194,7 +194,7 @@ namespace eShopSolution.AdminApp.Controllers
 
             ModelState.AddModelError("", result.Message);
             var roleAssignRequest = await GetRoleAssignRequest(request.Id);
-            return View(request);
+            return View(roleAssignRequest);
         }
     }
 }
