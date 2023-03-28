@@ -3,10 +3,10 @@ using eShopSolution.ViewModels.System.Language;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace eShopSolution.AdminApp.Services
+namespace eShopSolution.ApiIntegration
 {
-    public interface ILanguageApiClient
-    {
-        Task<ApiResult<List<LanguageVm>>> GetAll();
-    }
+	public interface ILanguageApiClient
+	{
+		Task<ApiResult<List<LanguageVm>>> GetAll();
+	}
 }

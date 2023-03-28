@@ -3,10 +3,10 @@ using eShopSolution.ViewModels.Common;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace eShopSolution.AdminApp.Services
+namespace eShopSolution.ApiIntegration
 {
-    public interface ICategoryApiClient
-    {
-        Task<List<CategoryVm>> GetAll(string languageId);
-    }
+	public interface ICategoryApiClient
+	{
+		Task<List<CategoryVm>> GetAll(string languageId);
+	}
 }
