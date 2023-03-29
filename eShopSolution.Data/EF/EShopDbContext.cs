@@ -12,83 +12,87 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.Data.EF
 {
-    public class EShopDbContext : IdentityDbContext<AppUser,AppRole,Guid>
-    {
-        
-        public EShopDbContext(DbContextOptions options) : base(options)
-        {
-        }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<AppConfig> AppConfigs { get; set; }
-        public DbSet<Cart> Carts { get; set; }
-        public DbSet<CategoryTranslation> CategoriesTranslation { get; set; }
-        public DbSet<Contact> Contacts { get; set; }
-        public DbSet<Language> Languages { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderDetail> OrderDetails { get; set; }
-        public DbSet<ProductTranslation> ProductTranslations { get; set; }
-        public DbSet<Promotion> Promotions { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<ProductInCategory> ProductInCategories { get; set; }
+	public class EShopDbContext : IdentityDbContext<AppUser, AppRole, Guid>
+	{
+		public EShopDbContext(DbContextOptions options) : base(options)
+		{
+		}
 
-        public DbSet<ProductImage> ProductImages { get; set; }
-        //end 7
+		public DbSet<Product> Products { get; set; }
+		public DbSet<Category> Categories { get; set; }
+		public DbSet<AppConfig> AppConfigs { get; set; }
+		public DbSet<Cart> Carts { get; set; }
+		public DbSet<CategoryTranslation> CategoriesTranslation { get; set; }
+		public DbSet<Contact> Contacts { get; set; }
+		public DbSet<Language> Languages { get; set; }
+		public DbSet<Order> Orders { get; set; }
+		public DbSet<OrderDetail> OrderDetails { get; set; }
+		public DbSet<ProductTranslation> ProductTranslations { get; set; }
+		public DbSet<Promotion> Promotions { get; set; }
+		public DbSet<Transaction> Transactions { get; set; }
+		public DbSet<ProductInCategory> ProductInCategories { get; set; }
 
-        // Phương thức này thi hành khi EnsureCreatedAsync chạy, tại đây gọi các Fluent API mong muốn 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            //base.OnModelCreating(modelBuilder);
-            //8. Add config ở đây
-            modelBuilder.ApplyConfiguration(new AppConfigConfiguration());
+		public DbSet<ProductImage> ProductImages { get; set; }
+		//end 7
 
-            modelBuilder.ApplyConfiguration(new ProductConfiguration());
+		public DbSet<Slide> Slides { get; set; }
 
-            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+		// Phương thức này thi hành khi EnsureCreatedAsync chạy, tại đây gọi các Fluent API mong muốn
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			//base.OnModelCreating(modelBuilder);
+			//8. Add config ở đây
+			modelBuilder.ApplyConfiguration(new AppConfigConfiguration());
 
-            modelBuilder.ApplyConfiguration(new ProductInCategoryConfiguration());
+			modelBuilder.ApplyConfiguration(new ProductConfiguration());
 
-            modelBuilder.ApplyConfiguration(new OrderConfiguration());
+			modelBuilder.ApplyConfiguration(new CategoryConfiguration());
 
-            modelBuilder.ApplyConfiguration(new OrderDetailConfiguration());
+			modelBuilder.ApplyConfiguration(new ProductInCategoryConfiguration());
 
-            modelBuilder.ApplyConfiguration(new CartConfiguration());
+			modelBuilder.ApplyConfiguration(new OrderConfiguration());
 
-            modelBuilder.ApplyConfiguration(new ContactConfiguration());
+			modelBuilder.ApplyConfiguration(new OrderDetailConfiguration());
 
-            modelBuilder.ApplyConfiguration(new LanguageConfiguration());
+			modelBuilder.ApplyConfiguration(new CartConfiguration());
 
-            modelBuilder.ApplyConfiguration(new PromotionConfiguration());
+			modelBuilder.ApplyConfiguration(new ContactConfiguration());
 
-            modelBuilder.ApplyConfiguration(new TransactionConfiguration());
+			modelBuilder.ApplyConfiguration(new LanguageConfiguration());
 
-            modelBuilder.ApplyConfiguration(new CategoryTranslationConfiguration());
+			modelBuilder.ApplyConfiguration(new PromotionConfiguration());
 
-            modelBuilder.ApplyConfiguration(new ProductTranslationConfiguration());
-            //end 8
+			modelBuilder.ApplyConfiguration(new TransactionConfiguration());
 
-            modelBuilder.ApplyConfiguration(new AppUserConfiguration());
-            modelBuilder.ApplyConfiguration(new AppRoleConfiguration());
+			modelBuilder.ApplyConfiguration(new CategoryTranslationConfiguration());
 
-            modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserClaims");
-            modelBuilder.Entity<IdentityUserRole<Guid>>().ToTable("AppUserRoles").HasKey(x=>new {x.UserId,x.RoleId});
-            modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("AppUserLogins").HasKey(x=>x.UserId);
+			modelBuilder.ApplyConfiguration(new ProductTranslationConfiguration());
+			//end 8
 
-            modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("AppRoleClaims");
-            modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens").HasKey(x=>x.UserId);
-            //end 11
+			modelBuilder.ApplyConfiguration(new AppUserConfiguration());
+			modelBuilder.ApplyConfiguration(new AppRoleConfiguration());
 
-            modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
-            //end 15
+			modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserClaims");
+			modelBuilder.Entity<IdentityUserRole<Guid>>().ToTable("AppUserRoles").HasKey(x => new { x.UserId, x.RoleId });
+			modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("AppUserLogins").HasKey(x => x.UserId);
 
-            //10. Data Seeding 
+			modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("AppRoleClaims");
+			modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens").HasKey(x => x.UserId);
+			//end 11
 
-            //modelBuilder.Entity<AppConfig>().HasData(
-            //    new AppConfig() { Key="HomeTitle", Value="This is the home page of eShopSolution"},
-            //    new AppConfig() { Key = "HomeKeyword", Value = "This is keyword of eShopSolution" },
-            //    new AppConfig() { Key = "HomeDescription", Value = "This is description of eShopSolution" }
-            //    );
-            modelBuilder.Seed();
-        }
-    }
+			modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
+			//end 15
+
+			modelBuilder.ApplyConfiguration(new SlideConfiguration()); //43
+
+			//10. Data Seeding
+
+			//modelBuilder.Entity<AppConfig>().HasData(
+			//    new AppConfig() { Key="HomeTitle", Value="This is the home page of eShopSolution"},
+			//    new AppConfig() { Key = "HomeKeyword", Value = "This is keyword of eShopSolution" },
+			//    new AppConfig() { Key = "HomeDescription", Value = "This is description of eShopSolution" }
+			//    );
+			modelBuilder.Seed();
+		}
+	}
 }

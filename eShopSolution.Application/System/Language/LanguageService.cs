@@ -1,6 +1,6 @@
 ﻿using eShopSolution.Data.EF;
 using eShopSolution.ViewModels.Common;
-using eShopSolution.ViewModels.System.Language;
+using eShopSolution.ViewModels.System.Languages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.Application.System.Language
 {
-    public class LanguageService : ILanguageService
+	public class LanguageService : ILanguageService
     {
         private readonly IConfiguration _configuration;
         private readonly EShopDbContext _context;

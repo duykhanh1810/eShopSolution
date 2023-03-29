@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -11,196 +13,131 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.ApiIntegration
 {
-	public class UserApiClient : IUserApiClient
-	{
-		private readonly IHttpClientFactory _httpClientFactory;
-		private readonly IConfiguration _configuration;
-		private readonly IHttpContextAccessor _httpContextAccessor;
+    public class UserApiClient : IUserApiClient
+    {
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-		public UserApiClient(IHttpClientFactory httpClientFactory, IConfiguration configuration,
-			IHttpContextAccessor httpContextAccessor)
-		{
-			_httpClientFactory = httpClientFactory;
-			_configuration = configuration;
-			_httpContextAccessor = httpContextAccessor;
-		}
+        public UserApiClient(IHttpClientFactory httpClientFactory,
+                   IHttpContextAccessor httpContextAccessor,
+                    IConfiguration configuration)
+        {
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _httpClientFactory = httpClientFactory;
+        }
 
-		public async Task<ApiResult<string>> Authenticate(LoginRequest request)
-		{
-			//Convert request về dạng chuỗi json
-			var json = JsonConvert.SerializeObject(request);
+        public async Task<ApiResult<string>> Authenticate(LoginRequest request)
+        {
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-			//Add các header vào api
-			var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            var response = await client.PostAsync("/api/users/authenticate", httpContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<string>>(await response.Content.ReadAsStringAsync());
+            }
 
-			var client = _httpClientFactory.CreateClient(); //tạo 1 đối tượng client
+            return JsonConvert.DeserializeObject<ApiErrorResult<string>>(await response.Content.ReadAsStringAsync());
+        }
 
-			//Địa chỉ đường dẫn mà ta muốn(ở đây là đường dẫn của prj BackendApi)
-			//VD: client.BaseAddress = new Uri("https://localhost:5001");
+        public async Task<ApiResult<bool>> Delete(Guid id)
+        {
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+            var response = await client.DeleteAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(body);
 
-			client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
+        }
 
-			//post dữ liệu đến link nào đó(ở đây là link của phương thức authenticate trong prj BackendApi)
-			var response = await client.PostAsync("/api/users/authenticate", httpContent);
+        public async Task<ApiResult<UserVm>> GetById(Guid id)
+        {
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+            var response = await client.GetAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<UserVm>>(body);
 
-			//Lấy ra token bằng cách lấy ra dạng string của response
-			//var token = JsonConvert.DeserializeObject<ApiResult<string>>(await response.Content.ReadAsStringAsync());
-			//return token;
+            return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body);
+        }
 
-			//29. do dùng ApiResult nên ta phải convert lại nó
-			if (response.IsSuccessStatusCode)
-			{
-				return JsonConvert.DeserializeObject<ApiSuccessResult<string>>(await response.Content.ReadAsStringAsync());
-			}
-			return JsonConvert.DeserializeObject<ApiErrorResult<string>>(await response.Content.ReadAsStringAsync());
-		}
+        public async Task<ApiResult<PagedResult<UserVm>>> GetUsersPagings(GetUserPagingRequest request)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
 
-		public async Task<ApiResult<PagedResult<UserVm>>> GetUsersPagings(GetUserPagingRequest request)
-		{
-			var client = _httpClientFactory.CreateClient(); //tạo 1 đối tượng client
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+            var response = await client.GetAsync($"/api/users/paging?pageIndex=" +
+                $"{request.PageIndex}&pageSize={request.PageSize}&keyword={request.Keyword}");
+            var body = await response.Content.ReadAsStringAsync();
+            var users = JsonConvert.DeserializeObject<ApiSuccessResult<PagedResult<UserVm>>>(body);
+            return users;
+        }
 
-			//Lấy token từ session thông qua HttpContextAccessor
-			var session = _httpContextAccessor.HttpContext.Session.GetString("Token");
+        public async Task<ApiResult<bool>> RegisterUser(RegisterRequest registerRequest)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
 
-			//Địa chỉ đường dẫn mà ta muốn(ở đây là đường dẫn của prj BackendApi)
-			client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            var json = JsonConvert.SerializeObject(registerRequest);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-			//Gán Header cho client
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
+            var response = await client.PostAsync($"/api/users", httpContent);
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
 
-			//post dữ liệu đến link nào đó(ở đây là link của phương thức authenticate trong prj BackendApi)
-			var response = await client.GetAsync($"/api/users/paging?pageIndex=" +
-				$"{request.PageIndex}&pageSize={request.PageSize}&keyword={request.Keyword}");
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+        }
 
-			//Lấy ra body bằng cách lấy ra dạng string của response
-			var body = await response.Content.ReadAsStringAsync();
+        public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
 
-			//Chuyển ngược định dạng body đang là token về ban đầu
-			var users = JsonConvert.DeserializeObject<ApiResult<PagedResult<UserVm>>>(body); //29
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
 
-			//Deserialization là quá trình ngược lại của quá trình serialization,
-			//thực hiện lấy dữ liệu từ các định dạng có cấu trúc, khôi phục thông tin theo byte, XML, JSON,... thành các đối tượng
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-			return users;
-		}
+            var response = await client.PutAsync($"/api/users/{id}/roles", httpContent);
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
 
-		//28
-		public async Task<ApiResult<bool>> RegisterUser(RegisterRequest registerRequest)
-		{
-			var client = _httpClientFactory.CreateClient();
-			client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+        }
 
-			var json = JsonConvert.SerializeObject(registerRequest);
-			var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+        public async Task<ApiResult<bool>> UpdateUser(Guid id, UserUpdateRequest request)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
 
-			var response = await client.PostAsync($"/api/users", httpContent);
-			var result = await response.Content.ReadAsStringAsync();
-			if (response.IsSuccessStatusCode)
-				return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
 
-			return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
-		}
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-		//29: Update User
-		public async Task<ApiResult<bool>> UpdateUser(Guid id, UserUpdateRequest request)
-		{
-			var client = _httpClientFactory.CreateClient();
+            var response = await client.PutAsync($"/api/users/{id}", httpContent);
+            var result = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
 
-			//Lấy token từ session thông qua HttpContextAccessor
-			var session = _httpContextAccessor.HttpContext.Session.GetString("Token");
-
-			client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
-
-			var json = JsonConvert.SerializeObject(request);
-			var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-
-			var response = await client.PutAsync($"/api/users/{id}", httpContent);
-			//return response.IsSuccessStatusCode;
-
-			//29
-			var result = await response.Content.ReadAsStringAsync();
-			if (response.IsSuccessStatusCode)
-			{
-				return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
-			}
-			return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
-		}
-
-		public async Task<ApiResult<UserVm>> GetById(Guid id)
-		{
-			var client = _httpClientFactory.CreateClient(); //tạo 1 đối tượng client
-
-			//Lấy token từ session thông qua HttpContextAccessor
-			var session = _httpContextAccessor.HttpContext.Session.GetString("Token");
-
-			//Địa chỉ đường dẫn mà ta muốn(ở đây là đường dẫn của prj BackendApi)
-			client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-
-			//Gán Header cho client
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
-
-			//get dữ liệu từ link nào đó(ở đây là link của phương thức GetById trong prj BackendApi)
-			var response = await client.GetAsync($"/api/users/{id}");
-
-			//Lấy ra body bằng cách lấy ra dạng string của response
-			var body = await response.Content.ReadAsStringAsync();
-
-			//Chuyển ngược định dạng body đang là token về ban đầu
-			if (response.IsSuccessStatusCode)
-				return JsonConvert.DeserializeObject<ApiSuccessResult<UserVm>>(body); //29
-
-			//Deserialization là quá trình ngược lại của quá trình serialization,
-			//thực hiện lấy dữ liệu từ các định dạng có cấu trúc, khôi phục thông tin theo byte, XML, JSON,... thành các đối tượng
-
-			return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body); //29
-		}
-
-		//31. Delete User
-		public async Task<ApiResult<bool>> Delete(Guid id)
-		{
-			var client = _httpClientFactory.CreateClient(); //tạo 1 đối tượng client
-
-			//Lấy token từ session thông qua HttpContextAccessor
-			var session = _httpContextAccessor.HttpContext.Session.GetString("Token");
-
-			client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
-
-			var response = await client.DeleteAsync($"/api/users/{id}");
-			var body = await response.Content.ReadAsStringAsync();
-
-			if (response.IsSuccessStatusCode)
-				return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(body);
-
-			return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
-		}
-
-		//34.Role Assign
-		public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
-		{
-			var client = _httpClientFactory.CreateClient();
-
-			//Lấy token từ session thông qua HttpContextAccessor
-			var session = _httpContextAccessor.HttpContext.Session.GetString("Token");
-
-			client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", session);
-
-			var json = JsonConvert.SerializeObject(request);
-			var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-
-			var response = await client.PutAsync($"/api/users/{id}/roles", httpContent);
-			//return response.IsSuccessStatusCode;
-
-			//29
-			var result = await response.Content.ReadAsStringAsync();
-			if (response.IsSuccessStatusCode)
-			{
-				return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
-			}
-			return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
-		}
-	}
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+        }
+    }
 }

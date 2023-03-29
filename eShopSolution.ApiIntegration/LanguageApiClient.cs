@@ -1,28 +1,29 @@
 ﻿using eShopSolution.ViewModels.Common;
-using eShopSolution.ViewModels.System.Language;
-using eShopSolution.ViewModels.System.Roles;
+using eShopSolution.ViewModels.System.Languages;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using eShopSolution.ApiIntegration;
 
 namespace eShopSolution.ApiIntegration
 {
-	public class LanguageApiClient : BaseApiClient, ILanguageApiClient
-	{
-		public LanguageApiClient(IHttpClientFactory httpClientFactory, IConfiguration configuration,
-			IHttpContextAccessor httpContextAccessor) : base(httpClientFactory, configuration, httpContextAccessor)
-		{
-		}
+    public class LanguageApiClient : BaseApiClient, ILanguageApiClient
+    {
+        public LanguageApiClient(IHttpClientFactory httpClientFactory,
+                   IHttpContextAccessor httpContextAccessor,
+                    IConfiguration configuration)
+            : base(httpClientFactory, httpContextAccessor, configuration)
+        {
+        }
 
-		public async Task<ApiResult<List<LanguageVm>>> GetAll()
-		{
-			return await GetAsync<ApiResult<List<LanguageVm>>>($"/api/languages");
-		}
-	}
+        public async Task<ApiResult<List<LanguageVm>>> GetAll()
+        {
+            return await GetAsync<ApiResult<List<LanguageVm>>>("/api/languages");
+        }
+    }
 }

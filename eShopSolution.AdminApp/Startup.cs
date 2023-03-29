@@ -28,35 +28,30 @@ namespace eShopSolution.AdminApp
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			//25
 			services.AddHttpClient();
 
 			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-				.AddCookie(option =>
-			{
-				option.LoginPath = "/Login/Index/";
-				option.AccessDeniedPath = "/User/Forbidden";
-			}); //26
+				.AddCookie(options =>
+				{
+					options.LoginPath = "/Login/Index";
+					options.AccessDeniedPath = "/User/Forbidden/";
+				});
 
 			services.AddControllersWithViews()
-				.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
+					 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
 
 			services.AddSession(options =>
 			{
-				options.IdleTimeout = TimeSpan.FromMinutes(30);//You can set Time
-			}); //27
+				options.IdleTimeout = TimeSpan.FromMinutes(30);
+			});
+			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 			services.AddTransient<IUserApiClient, UserApiClient>();
-
-			services.AddTransient<IRoleApiClient, RoleApiClient>(); //34
-
-			services.AddTransient<ILanguageApiClient, LanguageApiClient>(); //35
-
-			services.AddTransient<IProductApiClient, ProductApiClient>(); //36
-
-			services.AddTransient<ICategoryApiClient, CategoryApiClient>(); //39
-
-			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>(); //29
+			services.AddTransient<IRoleApiClient, RoleApiClient>();
+			services.AddTransient<ILanguageApiClient, LanguageApiClient>();
+			services.AddTransient<IProductApiClient, ProductApiClient>();
+			services.AddTransient<ICategoryApiClient, CategoryApiClient>();
+			//services.AddTransient<ISlideApiClient, SlideApiClient>();
 
 			IMvcBuilder builder = services.AddRazorPages();
 			var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -90,9 +85,7 @@ namespace eShopSolution.AdminApp
 			app.UseRouting();
 
 			app.UseAuthorization();
-
-			app.UseSession(); //27
-
+			app.UseSession();
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute(

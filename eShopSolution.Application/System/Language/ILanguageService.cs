@@ -1,5 +1,5 @@
 ﻿using eShopSolution.ViewModels.Common;
-using eShopSolution.ViewModels.System.Language;
+using eShopSolution.ViewModels.System.Languages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.Application.System.Language
 {
-    public interface ILanguageService
-    {
-        Task<ApiResult<List<LanguageVm>>> GetAll();
-    }
+	public interface ILanguageService
+	{
+		Task<ApiResult<List<LanguageVm>>> GetAll();
+	}
 }

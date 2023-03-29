@@ -182,5 +182,14 @@ namespace eShopSolution.BackendApi.Controllers
             }
             return Ok(result);
         }
+
+        //43. get feature product
+        [HttpGet("featured/{languageId}/{take}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFeatureProducts(string languageId, int take)
+        {
+            var products = await _productService.GetFeatureProduct(languageId, take);
+            return Ok(products);
+        }
     }
 }
