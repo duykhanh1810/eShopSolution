@@ -1,5 +1,5 @@
 ﻿using eShopSolution.AdminApp.Models;
-using eShopSolution.AdminApp.Services;
+using eShopSolution.ApiIntegration;
 using eShopSolution.Utilities.Constants;
 using eShopSolution.ViewModels.Common;
 using Microsoft.AspNetCore.Http;
@@ -8,24 +8,24 @@ using System.Threading.Tasks;
 
 namespace eShopSolution.AdminApp.Controllers.Components
 {
-    public class NavigationViewComponent : ViewComponent
-    {
-        private readonly ILanguageApiClient _languageApiClient;
+	public class NavigationViewComponent : ViewComponent
+	{
+		private readonly ILanguageApiClient _languageApiClient;
 
-        public NavigationViewComponent(ILanguageApiClient languageApiClient)
-        {
-            _languageApiClient = languageApiClient;
-        }
+		public NavigationViewComponent(ILanguageApiClient languageApiClient)
+		{
+			_languageApiClient = languageApiClient;
+		}
 
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            var language = await _languageApiClient.GetAll();
-            var navigationVm = new NavigationViewModel()
-            {
-                CurrentLanguageId = HttpContext.Session.GetString(SystemConstants.AppSettings.DefaultLanguageId),
-                Languages = language.ResultObject
-            };
-            return View("Default", navigationVm);
-        }
-    }
+		public async Task<IViewComponentResult> InvokeAsync()
+		{
+			var language = await _languageApiClient.GetAll();
+			var navigationVm = new NavigationViewModel()
+			{
+				CurrentLanguageId = HttpContext.Session.GetString(SystemConstants.AppSettings.DefaultLanguageId),
+				Languages = language.ResultObject
+			};
+			return View("Default", navigationVm);
+		}
+	}
 }

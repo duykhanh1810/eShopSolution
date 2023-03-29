@@ -448,5 +448,45 @@ namespace eShopSolution.Application.Catalog.Products
             await _context.SaveChangesAsync();
             return new ApiSuccessResult<bool>();
         }
+
+        //44
+        public async Task<List<ProductVm>> GetFeatureProduct(string languageId, int take)
+        {
+            // Select Join
+            var query = from p in _context.Products
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                        //join pi in _context.ProductImages.Where(x => x.IsDefault == true) on p.Id equals pi.ProductId
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
+                        from pic in ppic.DefaultIfEmpty()
+                        join c in _context.Categories on pic.ProductId equals c.Id into picc
+                        from c in picc.DefaultIfEmpty()
+                        where pt.LanguageId == languageId
+                        select new { p, pt, pic };
+
+            // biến lấy tổng số bản ghi hiện tại
+            int totalRow = await query.CountAsync();
+
+            var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take) //lấy ra bao nhiêu dữ liệu thì tùy ta
+                .Select(x => new ProductVm()
+                {
+                    Id = x.p.Id,
+                    Name = x.pt.Name,
+                    DateCreated = x.p.DateCreated,
+                    Description = x.pt.Description,
+                    Details = x.pt.Details,
+                    LanguageId = x.pt.LanguageId,
+                    OriginalPrice = x.p.OriginalPrice,
+                    Price = x.p.Price,
+                    SeoAlias = x.pt.SeoAlias,
+                    SeoDescription = x.pt.SeoDescription,
+                    SeoTitle = x.pt.SeoTitle,
+                    Stock = x.p.Stock,
+                    ViewCount = x.p.ViewCount,
+                    //ThumbnailImage = x.pi.ImagePath
+                }).ToListAsync();
+
+            //4. Select and Projection
+            return data;
+        }
     }
 }
