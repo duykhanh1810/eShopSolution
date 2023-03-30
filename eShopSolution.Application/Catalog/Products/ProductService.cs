@@ -449,19 +449,21 @@ namespace eShopSolution.Application.Catalog.Products
             return new ApiSuccessResult<bool>();
         }
 
-        //44
+        //43
         public async Task<List<ProductVm>> GetFeatureProduct(string languageId, int take)
         {
             // Select Join
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId
-                        //join pi in _context.ProductImages.Where(x => x.IsDefault == true) on p.Id equals pi.ProductId
                         join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
                         from pic in ppic.DefaultIfEmpty()
+                        join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi //44
+                        from pi in ppi.DefaultIfEmpty()
                         join c in _context.Categories on pic.ProductId equals c.Id into picc
                         from c in picc.DefaultIfEmpty()
-                        where pt.LanguageId == languageId
-                        select new { p, pt, pic };
+                        where pt.LanguageId == languageId && (pi == null || pi.IsDefault == true)
+                        && p.IsFeatured == true
+                        select new { p, pt, pic, pi };
 
             // biến lấy tổng số bản ghi hiện tại
             int totalRow = await query.CountAsync();
@@ -482,7 +484,47 @@ namespace eShopSolution.Application.Catalog.Products
                     SeoTitle = x.pt.SeoTitle,
                     Stock = x.p.Stock,
                     ViewCount = x.p.ViewCount,
-                    //ThumbnailImage = x.pi.ImagePath
+                    ThumbnailImage = x.pi.ImagePath
+                }).ToListAsync();
+
+            //4. Select and Projection
+            return data;
+        }
+
+        public async Task<List<ProductVm>> GetLatestProduct(string languageId, int take)
+        {
+            // Select Join
+            var query = from p in _context.Products
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
+                        from pic in ppic.DefaultIfEmpty()
+                        join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi //44
+                        from pi in ppi.DefaultIfEmpty()
+                        join c in _context.Categories on pic.ProductId equals c.Id into picc
+                        from c in picc.DefaultIfEmpty()
+                        where pt.LanguageId == languageId && (pi == null || pi.IsDefault == true)
+                        select new { p, pt, pic, pi };
+
+            // biến lấy tổng số bản ghi hiện tại
+            int totalRow = await query.CountAsync();
+
+            var data = await query.OrderByDescending(x => x.p.DateCreated).Take(take) //lấy ra bao nhiêu dữ liệu thì tùy ta
+                .Select(x => new ProductVm()
+                {
+                    Id = x.p.Id,
+                    Name = x.pt.Name,
+                    DateCreated = x.p.DateCreated,
+                    Description = x.pt.Description,
+                    Details = x.pt.Details,
+                    LanguageId = x.pt.LanguageId,
+                    OriginalPrice = x.p.OriginalPrice,
+                    Price = x.p.Price,
+                    SeoAlias = x.pt.SeoAlias,
+                    SeoDescription = x.pt.SeoDescription,
+                    SeoTitle = x.pt.SeoTitle,
+                    Stock = x.p.Stock,
+                    ViewCount = x.p.ViewCount,
+                    ThumbnailImage = x.pi.ImagePath
                 }).ToListAsync();
 
             //4. Select and Projection
