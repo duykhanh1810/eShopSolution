@@ -53,8 +53,11 @@ namespace eShopSolution.Application.Catalog.Products
                     translation.Add(new ProductTranslation()
                     {
                         Name = SystemConstants.ProductConstants.NA,
-                        Description = SystemConstants.ProductConstants.NA,                        
+                        Description = SystemConstants.ProductConstants.NA,   
+                        Details = SystemConstants.ProductConstants.NA,
+                        SeoDescription = SystemConstants.ProductConstants.NA,
                         SeoAlias = SystemConstants.ProductConstants.NA,
+                        SeoTitle = SystemConstants.ProductConstants.NA,
                         LanguageId = language.Id //để là language hiện tại
                     });
                 }
