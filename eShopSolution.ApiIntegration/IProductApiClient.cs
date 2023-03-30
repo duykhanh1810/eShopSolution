@@ -21,5 +21,7 @@ namespace eShopSolution.ApiIntegration
         Task<List<ProductVm>> GetFeaturedProducts(string languageId, int take);
 
         Task<List<ProductVm>> GetLatestProducts(string languageId, int take);
+
+        Task<bool> UpdateProduct(ProductUpdateRequest request); //45
     }
 }
