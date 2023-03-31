@@ -119,11 +119,15 @@
   </resheader>
   <data name="Add to" xml:space="preserve">
     <value>Add to</value>
-    <comment>/Home/Index</comment>
+    <comment>Common</comment>
+  </data>
+  <data name="available product" xml:space="preserve">
+    <value>available product</value>
+    <comment>/Product/Category</comment>
   </data>
   <data name="categoryUrl" xml:space="preserve">
     <value>categories</value>
-    <comment>Layouts</comment>
+    <comment>Common</comment>
   </data>
   <data name="Contact" xml:space="preserve">
     <value>Contact</value>
@@ -149,9 +153,21 @@
     <value>Login</value>
     <comment>Layouts</comment>
   </data>
+  <data name="New | Available" xml:space="preserve">
+    <value>New | Available</value>
+    <comment>/Product/Category</comment>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>Page</value>
+    <comment>Common</comment>
+  </data>
   <data name="productUrl" xml:space="preserve">
     <value>products</value>
-    <comment>Layouts</comment>
+    <comment>Common</comment>
+  </data>
+  <data name="Sort By" xml:space="preserve">
+    <value>Sort By</value>
+    <comment>/Product/Category</comment>
   </data>
   <data name="Specials Offer" xml:space="preserve">
     <value>Specials Offer</value>
@@ -164,5 +180,9 @@
   <data name="VIEW" xml:space="preserve">
     <value>VIEW</value>
     <comment>/Home/Index</comment>
+  </data>
+  <data name="View detail" xml:space="preserve">
+    <value>View detail</value>
+    <comment>/Product/Category</comment>
   </data>
 </root>

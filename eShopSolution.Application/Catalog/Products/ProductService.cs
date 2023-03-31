@@ -179,8 +179,10 @@ namespace eShopSolution.Application.Catalog.Products
                         from pic in ppic.DefaultIfEmpty()
                         join c in _context.Categories on pic.ProductId equals c.Id into picc
                         from c in picc.DefaultIfEmpty()  //40
-                        where pt.LanguageId == request.LanguageId //36
-                        select new { p, pt, pic };
+                        join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi
+                        from pi in ppi.DefaultIfEmpty() //46
+                        where pt.LanguageId == request.LanguageId && pi.IsDefault ==true //36  46
+                        select new { p, pt, pic, pi };
             //select new { p, pt };
 
             //2. filter
@@ -215,7 +217,8 @@ namespace eShopSolution.Application.Catalog.Products
                     SeoDescription = x.pt.SeoDescription,
                     SeoTitle =  x.pt.SeoTitle,
                     Stock = x.p.Stock,
-                    ViewCount = x.p.ViewCount
+                    ViewCount = x.p.ViewCount,
+                    ThumbnailImage = x.pi.ImagePath
                 }).ToListAsync();
             //Có thể hiểu như sau: ở trang đầu có 10 bản ghi thì sẽ là(1 - 1) * 10 thì số bản ghi bị bỏ qua sẽ là 0,
             //tức là take 10 bản ghi đầu ở trang 1
