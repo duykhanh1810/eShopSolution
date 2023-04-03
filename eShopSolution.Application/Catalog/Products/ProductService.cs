@@ -23,6 +23,8 @@ namespace eShopSolution.Application.Catalog.Products
         private readonly EShopDbContext _context;
         private readonly IStorageService _storageService; //16
 
+        private const string USER_CONTENT_FOLDER_NAME = "user-content"; //48
+
         public ProductService(EShopDbContext context, IStorageService storageService)
         {
             _context = context;
@@ -179,8 +181,10 @@ namespace eShopSolution.Application.Catalog.Products
                         from pic in ppic.DefaultIfEmpty()
                         join c in _context.Categories on pic.ProductId equals c.Id into picc
                         from c in picc.DefaultIfEmpty()  //40
-                        where pt.LanguageId == request.LanguageId //36
-                        select new { p, pt, pic };
+                        join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi
+                        from pi in ppi.DefaultIfEmpty() //46
+                        where pt.LanguageId == request.LanguageId && pi.IsDefault ==true //36  46
+                        select new { p, pt, pic, pi };
             //select new { p, pt };
 
             //2. filter
@@ -215,7 +219,8 @@ namespace eShopSolution.Application.Catalog.Products
                     SeoDescription = x.pt.SeoDescription,
                     SeoTitle =  x.pt.SeoTitle,
                     Stock = x.p.Stock,
-                    ViewCount = x.p.ViewCount
+                    ViewCount = x.p.ViewCount,
+                    ThumbnailImage = x.pi.ImagePath
                 }).ToListAsync();
             //Có thể hiểu như sau: ở trang đầu có 10 bản ghi thì sẽ là(1 - 1) * 10 thì số bản ghi bị bỏ qua sẽ là 0,
             //tức là take 10 bản ghi đầu ở trang 1
@@ -237,7 +242,7 @@ namespace eShopSolution.Application.Catalog.Products
             var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
             await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
-            return fileName;
+            return "/"+USER_CONTENT_FOLDER_NAME+"/" + fileName;
         }
 
         public async Task<ProductVm> GetById(int productId, string languageId) //19
@@ -252,6 +257,9 @@ namespace eShopSolution.Application.Catalog.Products
                                     join pic in _context.ProductInCategories on c.Id equals pic.CategoryId
                                     where pic.ProductId == productId && ct.LanguageId == languageId
                                     select ct.Name).ToListAsync(); //40
+
+            //46. GetImage to detail view
+            var image = await _context.ProductImages.Where(x => x.ProductId == productId && x.IsDefault == true).FirstOrDefaultAsync();
 
             var productViewModel = new ProductVm()
             {
@@ -268,7 +276,8 @@ namespace eShopSolution.Application.Catalog.Products
                 SeoTitle = productTranslation != null ? productTranslation.SeoTitle : null,
                 Stock = product.Stock,
                 ViewCount = product.ViewCount,
-                Categories = categories //40
+                Categories = categories, //40,
+                ThumbnailImage = image != null ? image.ImagePath : "no-image.jpg"
             };
             return productViewModel;
         }
