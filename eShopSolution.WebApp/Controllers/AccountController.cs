@@ -38,12 +38,12 @@ namespace eShopSolution.WebApp.Controllers
 		public async Task<IActionResult> Login(LoginRequest request)
 		{
 			if (!ModelState.IsValid)
-				return View(ModelState);
+				return View(request);
 
 			var result = await _userApiClient.Authenticate(request);
 			if (result.ResultObject == null)
 			{
-				ModelState.AddModelError("", result.Message);
+				ModelState.AddModelError("", "Login failed");
 				return View();
 			}
 			var userPrincipal = this.ValidateToken(result.ResultObject);
@@ -85,6 +85,48 @@ namespace eShopSolution.WebApp.Controllers
 			ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
 
 			return principal;
+		}
+
+		[HttpGet]
+		public IActionResult Register()
+		{
+			return View();
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> Register(RegisterRequest request)
+		{
+			if (!ModelState.IsValid)
+			{
+				return View(request);
+			}
+
+			var result = await _userApiClient.RegisterUser(request);
+			if (!result.IsSuccess)
+			{
+				ModelState.AddModelError("", result.Message);
+				return View();
+			}
+			var loginResult = await _userApiClient.Authenticate(new LoginRequest()
+			{
+				UserName = request.UserName,
+				Password = request.Password,
+				RememberMe = true
+			}); //tự động đăng nhập ngay sau khi đăng ký thành công
+
+			var userPrincipal = this.ValidateToken(loginResult.ResultObject);
+			var authProperties = new AuthenticationProperties
+			{
+				ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
+				IsPersistent = false
+			};
+			HttpContext.Session.SetString(SystemConstants.AppSettings.Token, loginResult.ResultObject);
+			await HttpContext.SignInAsync(
+						CookieAuthenticationDefaults.AuthenticationScheme,
+						userPrincipal,
+						authProperties);
+
+			return RedirectToAction("Index", "Home");
 		}
 	}
 }
