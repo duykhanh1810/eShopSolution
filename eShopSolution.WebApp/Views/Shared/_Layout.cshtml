@@ -37,7 +37,14 @@
 	<div id="header">
 		<div class="container">
 			<div id="welcomeLine" class="row">
-				<div class="span6">Welcome!<strong> User</strong></div>
+				@if (User.Identity.IsAuthenticated)
+				{
+					<div class="span6">Welcome <strong> @User.Identity.Name !</strong></div>
+				}
+				else
+				{
+					<div class="span6"></div>
+				}			
 				<div class="span6">
 					<div class="pull-right">
 						<language-nav language-label="NativeName"
@@ -72,7 +79,7 @@
 						<li class=""><a asp-route-culture="@culture" localize-content>Specials Offer</a></li>
 						<li class=""><a asp-route-culture="@culture" localize-content>Delivery</a></li>
 						<li class=""><a asp-route-culture="@culture" localize-content>Contact</a></li>
-						<li class="">
+						@*<li class="">
 							<a href="#login" role="button" data-toggle="modal" style="padding-right:0">
 								<span class="btn btn-large btn-success"><localize>Login</localize></span>
 							</a>
@@ -99,6 +106,23 @@
 									<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
 								</div>
 							</div>
+						</li>*@
+						<li class="">
+							@if (User.Identity.IsAuthenticated) //kiểm tra xem người dùng đã xác thực chưa
+							{
+								<form action="/@culture/Account/Logout" method="post">
+									<button type="submit" style="padding-right:0;margin-top:10px;margin-bottom:0px;background:transparent;border:none;">
+									<span class="btn btn-large btn-success"><localize>Logout</localize></span>
+								</button>
+								</form>
+							}
+							else
+							{
+								<a href="/@culture/Account/Login" role="button" data-toggle="modal" style="padding-right:0">
+									<span class="btn btn-large btn-success"><localize>Login</localize></span>
+								</a>
+							}						
+							
 						</li>
 					</ul>
 				</div>
