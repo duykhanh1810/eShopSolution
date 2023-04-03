@@ -90,7 +90,7 @@ namespace eShopSolution.BackendApi.Controllers
         }
 
         //Delete
-        [HttpDelete("productId")]
+        [HttpDelete("{productId}")]
 		[Authorize]
 		public async Task<IActionResult> Delete(int productId)
         {
