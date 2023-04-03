@@ -1,6 +1,7 @@
 using eShopSolution.ApiIntegration;
 using eShopSolution.WebApp.LocalizationResources;
 using LazZiya.ExpressLocalization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -66,6 +67,13 @@ namespace eShopSolution.WebApp
 						o.DefaultRequestCulture = new RequestCulture("vi");
 					};
 				});
+			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+			 .AddCookie(options =>
+			 {
+				 options.LoginPath = "/Account/Login";
+				 options.AccessDeniedPath = "/User/Forbidden/";
+			 });
+
 			services.AddSession(options =>
 			{
 				options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -74,6 +82,7 @@ namespace eShopSolution.WebApp
 			services.AddTransient<ISlideApiClient, SlideApiClient>();
 			services.AddTransient<IProductApiClient, ProductApiClient>();
 			services.AddTransient<ICategoryApiClient, CategoryApiClient>();
+			services.AddTransient<IUserApiClient, UserApiClient>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -91,6 +100,7 @@ namespace eShopSolution.WebApp
 			}
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
+			app.UseAuthentication();
 
 			app.UseRouting();
 
@@ -100,36 +110,36 @@ namespace eShopSolution.WebApp
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute(
-					 name: "Product Category En",
-					 pattern: "{culture}/categories/{id}", new
-					 {
-						 controller = "Product",
-						 action = "Category"
-					 });
+					name: "Product Category En",
+					pattern: "{culture}/categories/{id}", new
+					{
+						controller = "Product",
+						action = "Category"
+					});
 
 				endpoints.MapControllerRoute(
-					 name: "Product Category Vn",
-					 pattern: "{culture}/danh-muc/{id}", new
-					 {
-						 controller = "Product",
-						 action = "Category"
-					 });
+				  name: "Product Category Vn",
+				  pattern: "{culture}/danh-muc/{id}", new
+				  {
+					  controller = "Product",
+					  action = "Category"
+				  });
 
 				endpoints.MapControllerRoute(
-					 name: "Product Detail En",
-					 pattern: "{culture}/products/{id}", new
-					 {
-						 controller = "Product",
-						 action = "Detail"
-					 });
+					name: "Product Detail En",
+					pattern: "{culture}/products/{id}", new
+					{
+						controller = "Product",
+						action = "Detail"
+					});
 
 				endpoints.MapControllerRoute(
-					 name: "Product Detail Vn",
-					 pattern: "{culture}/san-pham/{id}", new
-					 {
-						 controller = "Product",
-						 action = "Detail"
-					 });
+				  name: "Product Detail Vn",
+				  pattern: "{culture}/san-pham/{id}", new
+				  {
+					  controller = "Product",
+					  action = "Detail"
+				  });
 
 				endpoints.MapControllerRoute(
 					 name: "default",
