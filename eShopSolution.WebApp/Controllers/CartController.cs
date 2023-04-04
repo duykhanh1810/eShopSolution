@@ -54,14 +54,25 @@ namespace eShopSolution.WebApp.Controllers
                 Description = product.Description,
                 Image = product.ThumbnailImage,
                 Name = product.Name,
-                Quantity = quantity
+				Price = product.Price,
+				Quantity = quantity
             };
 
             //if (currentCart == null) currentCart = new List<CartItemViewModel>();
             currentCart.Add(cartItem);
 
             HttpContext.Session.SetString(SystemConstants.CartSession, JsonConvert.SerializeObject(currentCart));
-            return Ok();
+            return Ok(currentCart); //trả về tổng current cart
         }
-    }
+
+		[HttpGet]
+		public IActionResult GetListItems()
+		{
+			var session = HttpContext.Session.GetString(SystemConstants.CartSession);
+			List<CartItemViewModel> currentCart = new List<CartItemViewModel>();
+			if (session != null)
+				currentCart = JsonConvert.DeserializeObject<List<CartItemViewModel>>(session);
+			return Ok(currentCart);
+		}
+	}
 }
