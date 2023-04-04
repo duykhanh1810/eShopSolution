@@ -10,6 +10,8 @@ namespace eShopSolution.Utilities.Constants
     {
         public const string MainConnectionString = "eShopSolutionDb";
 
+        public const string CartSession = "CartSession"; //51
+
         public class AppSettings //35
         {
             public const string DefaultLanguageId = "DefaultLanguageId";
