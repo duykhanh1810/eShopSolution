@@ -5,7 +5,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\js\cart.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\js\cart.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\themes\less\oregional\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\js\cart.js" />
   </ItemGroup>
 
   <ItemGroup>
