@@ -67,10 +67,14 @@ namespace eShopSolution.BackendApi
 			//services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
 			//services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
 
-			services.AddControllers()
-				.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
+			//services.AddControllers()
+			//	.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
 
-			services.AddSwaggerGen(c =>
+
+			services.AddControllers();
+            services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
+
+            services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "Swagger eShop Solution", Version = "v1" });
 

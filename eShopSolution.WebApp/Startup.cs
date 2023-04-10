@@ -1,6 +1,7 @@
 using eShopSolution.ApiIntegration;
 using eShopSolution.ViewModels.System.Users;
 using eShopSolution.WebApp.LocalizationResources;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using LazZiya.ExpressLocalization;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -40,7 +41,6 @@ namespace eShopSolution.WebApp
 			};
 
 			services.AddControllersWithViews()
-				.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>())
 				.AddExpressLocalization<ExpressLocalizationResource, ViewLocalizationResource>(ops =>
 				{
 					// When using all the culture providers, the localization process will
@@ -70,7 +70,10 @@ namespace eShopSolution.WebApp
 						o.DefaultRequestCulture = new RequestCulture("vi");
 					};
 				});
-			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+
+            services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 			 .AddCookie(options =>
 			 {
 				 options.LoginPath = "/Account/Login";
