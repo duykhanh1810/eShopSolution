@@ -18,6 +18,7 @@ namespace eShopSolution.ViewModels.System.Users
         public DateTime Dob { get; set; }
 
         public string Email { get; set; }
+        [Required]
         public string PhoneNumber { get; set; }
     }
 }

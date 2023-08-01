@@ -108,6 +108,7 @@ namespace eShopSolution.Application.Catalog.Products
                 throw new EShopException($"Can not find a product: {request.Id} to update");
 
             productTranslation.Name = request.Name;
+            productTranslation.Description = request.Description;
             productTranslation.SeoAlias = request.SeoAlias;
             productTranslation.SeoDescription = request.SeoDescription;
             productTranslation.SeoTitle = request.SeoTitle;
